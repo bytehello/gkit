@@ -31,23 +31,8 @@ func SetConfigFile(fn string, loggerName ...string) (*GLogger, error) {
 	return setConfig(logrus_mate.ConfigFile(fn), loggerName...)
 }
 
-func setConfig(opt logrus_mate.Option, loggerName ...string) (*GLogger, error) {
-	name := "default"
-	if len(loggerName) > 0 {
-		name = strings.TrimSpace(loggerName[0])
-		if len(name) == 0 {
-			name = "default"
-		}
-	}
-
-	meta, _ := logrus_mate.NewLogrusMate(
-		opt,
-	)
-	defaultLogger.meta = meta
-	if err := meta.Hijack(defaultLogger.logger, name); err != nil {
-		return nil, err
-	}
-	return defaultLogger, nil
+func SetReportCaller(include bool) {
+	defaultLogger.logger.SetReportCaller(include)
 }
 
 // Logger 参数不填写，则表示使用default（前提是传入的配置文件中有）
@@ -56,11 +41,6 @@ func Logger(loggerName ...string) *GLogger {
 		logger: defaultLogger.meta.Logger(loggerName...),
 		meta:   newLogrusMeta(),
 	}
-}
-
-func newLogrusMeta(opts ...logrus_mate.Option) *logrus_mate.LogrusMate {
-	newMeta, _ := logrus_mate.NewLogrusMate(opts...)
-	return newMeta
 }
 
 func Debug(args ...interface{}) {
@@ -93,4 +73,26 @@ func (gl *GLogger) Warn(args ...interface{}) {
 
 func (gl *GLogger) Error(args ...interface{}) {
 	gl.logger.Error(args...)
+}
+
+func setConfig(opt logrus_mate.Option, loggerName ...string) (*GLogger, error) {
+	name := "default"
+	if len(loggerName) > 0 {
+		name = strings.TrimSpace(loggerName[0])
+		if len(name) == 0 {
+			name = "default"
+		}
+	}
+
+	meta := newLogrusMeta(opt)
+	defaultLogger.meta = meta
+	if err := meta.Hijack(defaultLogger.logger, name); err != nil {
+		return nil, err
+	}
+	return defaultLogger, nil
+}
+
+func newLogrusMeta(opts ...logrus_mate.Option) *logrus_mate.LogrusMate {
+	newMeta, _ := logrus_mate.NewLogrusMate(opts...)
+	return newMeta
 }

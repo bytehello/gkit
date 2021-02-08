@@ -10,6 +10,7 @@ func TestLog(t *testing.T) {
 
 func TestSetConfigStr(t *testing.T) {
 	_, _ = SetConfigFile("mate.conf")
+	SetReportCaller(true)
 	Logger().Info("default log from Glogger")
 	Logger("mike").Info("mike log from Glogger")
 

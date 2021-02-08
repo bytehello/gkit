@@ -16,3 +16,15 @@ C:/Users/gechanghang/go/pkg/mod/github.com/sirupsen/logrus@v1.7.0/hooks.go:28
 C:/Users/gechanghang/go/pkg/mod/github.com/sirupsen/logrus@v1.7.0/hooks.go:28
 2021/02/08 16:55:25.717 [WARN] default log use hijack Warn
 C:/Users/gechanghang/go/pkg/mod/github.com/sirupsen/logrus@v1.7.0/hooks.go:28
+2021/02/08 17:03:22.367 [INFO] default log from Glogger
+C:/Users/gechanghang/go/pkg/mod/github.com/sirupsen/logrus@v1.7.0/hooks.go:28
+2021/02/08 17:03:22.369 [INFO] default log use hijack Info
+C:/Users/gechanghang/go/pkg/mod/github.com/sirupsen/logrus@v1.7.0/hooks.go:28
+2021/02/08 17:03:22.370 [WARN] default log use hijack Warn
+C:/Users/gechanghang/go/pkg/mod/github.com/sirupsen/logrus@v1.7.0/hooks.go:28
+2021/02/08 17:06:05.582 [INFO] default log from Glogger
+C:/Users/gechanghang/go/pkg/mod/github.com/sirupsen/logrus@v1.7.0/hooks.go:28
+2021/02/08 17:06:05.585 [INFO] default log use hijack Info
+C:/Users/gechanghang/go/pkg/mod/github.com/sirupsen/logrus@v1.7.0/hooks.go:28
+2021/02/08 17:06:05.586 [WARN] default log use hijack Warn
+C:/Users/gechanghang/go/pkg/mod/github.com/sirupsen/logrus@v1.7.0/hooks.go:28
