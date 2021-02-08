@@ -59,6 +59,14 @@ func Error(args ...interface{}) {
 	defaultLogger.logger.Error(args...)
 }
 
+func Fatal(args ...interface{}) {
+	defaultLogger.logger.Fatal(args...)
+}
+
+func Panic(args ...interface{}) {
+	defaultLogger.logger.Panic(args...)
+}
+
 func (gl *GLogger) Debug(args ...interface{}) {
 	gl.logger.Debug(args...)
 }
@@ -73,6 +81,14 @@ func (gl *GLogger) Warn(args ...interface{}) {
 
 func (gl *GLogger) Error(args ...interface{}) {
 	gl.logger.Error(args...)
+}
+
+func (gl *GLogger) Fatal(args ...interface{}) {
+	gl.logger.Fatal(args...)
+}
+
+func (gl *GLogger) Panic(args ...interface{}) {
+	gl.logger.Panic(args...)
 }
 
 func setConfig(opt logrus_mate.Option, loggerName ...string) (*GLogger, error) {
