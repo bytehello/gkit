@@ -1,7 +1,7 @@
-package main
+package log
 
 import (
-	nlog "log"
+	//nlog "log"
 	"testing"
 
 	"github.com/gogap/logrus_mate"
@@ -16,11 +16,12 @@ import (
 func TestLogMate(t *testing.T) {
 	mate, _ := logrus_mate.NewLogrusMate(
 		logrus_mate.ConfigString( // 这里使用的是一种特殊的数据格式，号称是更加容易读
-			`{ mike {formatter.name = "json" }`,
+			`{ mike {formatter.name = "json" } { default {formatter.name = "text"} }`,
 		),
 	)
-	mikeLogger := mate.Logger("mike")
-	mikeLogger.Errorln("With JSON MIKE")
+
+	mate.Logger("mike").Errorln("With JSON MIKE")
+	mate.Logger().Error("another error logger") // 不传入参数，默认是default
 }
 
 // 劫持使用，将logrus.Logger的行为替换掉，自己的项目中有这种情况没？
@@ -69,7 +70,7 @@ func TestHijackLoggerOverwriteByMate(t *testing.T) {
 	logrus.Println("hello std logger is hijack by mike")
 }
 
-func TestLog(t *testing.T) {
+func TestLogrusLog(t *testing.T) {
 	// t.Log("log")
 	logrus.SetLevel(logrus.TraceLevel)
 	logrus.SetReportCaller(true) // 输出文件名
@@ -113,5 +114,5 @@ func (ah *AppHook) Fire(entry *logrus.Entry) error {
 func TestHook(t *testing.T) {
 	h := &AppHook{AppName: "HelloWorldApp"}
 	logrus.AddHook(h)
-	logrus.Debug("HOOK DEBUG")
+	logrus.Error("HOOK DEBUG")
 }

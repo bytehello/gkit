@@ -9,6 +9,10 @@ func TestLog(t *testing.T) {
 }
 
 func TestSetConfigStr(t *testing.T) {
-	glogger := SetConfigString(`{ mike {formatter.name = "json" }`)
-	glogger.Logger("mike").logger.Warn("hello json")
+	_, _ = SetConfigFile("mate.conf")
+	Logger().Info("default log from Glogger")
+	Logger("mike").Info("mike log from Glogger")
+
+	Info("default log use hijack Info")
+	Warn("default log use hijack Warn")
 }
