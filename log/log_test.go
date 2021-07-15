@@ -16,4 +16,6 @@ func TestSetConfigStr(t *testing.T) {
 
 	Info("default log use hijack Info")
 	Warn("default log use hijack Warn")
+	Debug("default log debug")
+	Trace("default log trace")
 }
