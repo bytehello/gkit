@@ -6,6 +6,8 @@ github.com/gogap/config v0.0.0-20190801085516-e664631840ac h1:DubXGwTyEo8n1W1KYT
 github.com/gogap/config v0.0.0-20190801085516-e664631840ac/go.mod h1:oBHg+chXMdjU9A6Dfj0vg/1ir/isLEGXftHwj70ZsV8=
 github.com/gogap/logrus_mate v1.1.0 h1:DJXhy5P8/Dc0qxoKrsh0VnwENooZeEv1XehQXOnoNeY=
 github.com/gogap/logrus_mate v1.1.0/go.mod h1:BlkwmwrCtsst1qxpY98I83RZZCBOdddEJ5qwbZhsR+o=
+github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
+github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/sirupsen/logrus v1.7.0 h1:ShrD1U9pZB12TX0cVy0DtePoCH97K8EtX+mg7ZARUtM=
