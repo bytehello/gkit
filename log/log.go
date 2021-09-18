@@ -35,8 +35,13 @@ func SetReportCaller(include bool) {
 	defaultLogger.logger.SetReportCaller(include)
 }
 
-func SetLogger(loggerName ...string) {
-	defaultLogger.meta.Logger(loggerName...)
+func SetLogger(loggerName ...string) *GLogger {
+	logger := defaultLogger.meta.Logger(loggerName...)
+	if logger == nil {
+		return nil
+	}
+	defaultLogger.logger = logger
+	return defaultLogger
 }
 
 // Logger 参数不填写，则表示使用default（前提是传入的配置文件中有）
