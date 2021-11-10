@@ -2,11 +2,11 @@
 
 bizerror 包装了业务上捕捉到的错误/异常。
 
-必须的参数包括 Code 和 Msg，同时也可以提供 **错误详情** 及 **底层 error**。
+必须的参数包括 C 和 Msg，同时也可以提供 **错误详情** 及 **底层 error**。
 
-+ Code 和 Msg 将通过应用层协议(HTTP/gRPC/...)返回给客户端。
-    + HTTP Code 为 200, Code/Msg 在返回的 Response Body 的顶层 ErrCode/ErrMsg
-    + gRPC Code 为 OK, Code/Msg 在 ErrorResponse 的 1/2 位置(见 error.proto)
++ C 和 Msg 将通过应用层协议(HTTP/gRPC/...)返回给客户端。
+    + HTTP C 为 200, C/Msg 在返回的 Response Body 的顶层 ErrCode/ErrMsg
+    + gRPC C 为 OK, C/Msg 在 ErrorResponse 的 1/2 位置(见 error.proto)
 + 底层 error 有以下用途
     + 提供更多信息供开发排查问题，即用 github.com/pkg/errors.Wrap 包装
     + 通过追加 error 类型，提供信息来修改框架的行为，如 Silence 可以忽略 Prometheus Metric

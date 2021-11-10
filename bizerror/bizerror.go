@@ -14,68 +14,109 @@ var (
 	errUnknownMsg  = "Unknown Error"
 	errUnknownCode = 1
 	errUnknown     = gerror.NewCode(gcode.New(errUnknownCode, errUnknownMsg, ""), "")
+	unknownCoder   = BizError{
+		C:     errUnknownCode,
+		Msg:   errUnknownMsg,
+		error: gerror.New(errUnknownMsg),
+	}
 )
-var codeMap = map[int]error{}
+var codeMap = map[int]ApiCoder{}
 var codeMux = &sync.Mutex{}
 
-// BizError 代表业务上捕捉到的错误/异常。
+// ApiCoder return to gRPC/HTTP Client
+type ApiCoder interface {
+	Code() int
+	Message() string
+	Error() string
+}
+
+// BizError 代表业务上捕捉到的错误/异常，可打印堆栈
 type BizError struct {
-	Code  int    // ErrorResponse.ErrCode, return to gRPC/HTTP Client
+	C     int    // ErrorResponse.ErrCode, return to gRPC/HTTP Client
 	Msg   string // ErrorResponse.ErrMsg,  return to gRPC/HTTP Client
 	error error  // Underlying error, from 3rd API/Library or errors.Wrap/New/WithMessage
 }
 
-func (e *BizError) Error() string {
-	return fmt.Sprintf("%s", e.Msg)
+func (e BizError) Code() int {
+	return e.C
 }
 
-func (e *BizError) Stack() string {
+func (e BizError) Message() string {
+	return e.Msg
+}
+
+func (e BizError) Error() string {
+	return e.Msg
+}
+
+func (e BizError) Stack() string {
 	return fmt.Sprintf("%+v", e.error)
 }
 
-func (e *BizError) Is(target error) bool {
+func (e BizError) Is(target error) bool {
 	return target == ErrBiz
 }
 
 var NewError = Newf
 
+// ParseBizError 转 ApiCoder
+// 如果失败，返回默认错误
 func ParseBizError(err error) BizError {
-	if v, ok := err.(*BizError); ok {
-		return *v
+	if v, ok := err.(BizError); ok {
+		return v
 	}
-	return BizError{
-		Code:  errUnknownCode,
-		Msg:   errUnknownMsg,
-		error: err,
+	return unknownCoder
+}
+
+// ParseCoder 从 codeMap 读取 ApiCoder
+// 如果未读取到，返回默认错误
+func ParseCoder(err error) ApiCoder {
+	if err == nil {
+		return nil
 	}
+	if v, ok := err.(ApiCoder); ok {
+		if coder, ok := codeMap[v.Code()]; ok {
+			return coder
+		}
+	}
+	return unknownCoder
+}
+
+// Stack 返回堆栈
+// 不存在返回空字符串
+func Stack(err error) string {
+	if v, ok := err.(BizError); ok {
+		return v.Stack()
+	}
+	return ""
 }
 
 // New construct BizError with code and msg
 func New(code int, msg string) error {
-	return &BizError{Code: code, Msg: msg, error: gerror.NewCode(gcode.New(code, msg, ""))}
+	return BizError{C: code, Msg: msg, error: gerror.New(msg)}
 }
 
 // Newf construct BizError with code, msg and extra message
 func Newf(code int, msg string, format string, args ...interface{}) error {
-	return &BizError{Code: code, Msg: msg, error: gerror.NewCodef(gcode.New(code, msg, ""), format, args...)}
+	return BizError{C: code, Msg: msg, error: gerror.Newf(format, args...)}
 }
 
 // Wrap construct BizError with code, msg and underlying error
 func Wrap(code int, msg string, err error) error {
-	return &BizError{
-		Code:  code,
+	return BizError{
+		C:     code,
 		Msg:   msg,
-		error: gerror.WrapCode(gcode.New(code, msg, ""), err),
+		error: gerror.Wrap(err, msg),
 	}
 }
 
 // Wrapf construct BizError with code, msg, underlying error and extra message
 func Wrapf(code int, msg string, err error, format string, args ...interface{}) error {
-	return &BizError{Code: code, Msg: msg, error: gerror.WrapCodef(gcode.New(code, msg, ""), err, format, args...)}
+	return BizError{C: code, Msg: msg, error: gerror.Wrapf(err, format, args...)}
 }
 
 // Register 注册用户自定义错误码对应的错误
-func Register(code int, err error) {
+func Register(code int, err ApiCoder) {
 	codeMux.Lock()
 	defer codeMux.Unlock()
 	codeMap[code] = err
@@ -83,7 +124,7 @@ func Register(code int, err error) {
 
 // MustRegister 注册用户自定义错误码对应的错误
 // 如果错误已经存在则 panic
-func MustRegister(code int, err error) {
+func MustRegister(code int, err ApiCoder) {
 	codeMux.Lock()
 	defer codeMux.Unlock()
 	if _, ok := codeMap[code]; ok {
