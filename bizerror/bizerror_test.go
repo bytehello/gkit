@@ -2,7 +2,6 @@ package bizerror
 
 import (
 	"errors"
-	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -24,9 +23,11 @@ func TestRegister(t *testing.T) {
 	assert.True(t, New(1, errMsg).(*BizError).Msg == codeErrMsg)
 }
 
-func TestNew(t *testing.T) {
-	errMsg := "err code 1"
-	code := 1
-	err := New(code, errMsg)
-	assert.True(t, err.Error() == fmt.Sprintf(errFormat, code, errMsg))
+func TestStack(t *testing.T) {
+	err := New(1, "msg")
+	bizError := ParseBizError(err)
+	t.Log(bizError.Stack())
+
+	bizError2 := ParseBizError(errors.New("msg2"))
+	t.Log(bizError2.Code)
 }

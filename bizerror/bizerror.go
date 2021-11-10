@@ -2,6 +2,8 @@ package bizerror
 
 import (
 	"fmt"
+	"github.com/gogf/gf/errors/gcode"
+	"github.com/gogf/gf/errors/gerror"
 	"sync"
 
 	"github.com/pkg/errors"
@@ -9,34 +11,26 @@ import (
 
 var ErrBiz = errors.New("biz")
 var (
-	errFormat        = "code: %d, msg: %s"
-	errWrapFormat    = "code: %d, msg: %s, error: %s"
-	errUnknownFormat = "Unknown Error Code: %d"
+	errUnknownMsg  = "Unknown Error"
+	errUnknownCode = 1
+	errUnknown     = gerror.NewCode(gcode.New(errUnknownCode, errUnknownMsg, ""), "")
 )
 var codeMap = map[int]error{}
 var codeMux = &sync.Mutex{}
 
 // BizError 代表业务上捕捉到的错误/异常。
 type BizError struct {
-	Code    int    // ErrorResponse.ErrCode, return to gRPC/HTTP Client
-	Msg     string // ErrorResponse.ErrMsg,  return to gRPC/HTTP Client
-	wrapped error  // Underlying error, from 3rd API/Library or errors.Wrap/New/WithMessage
+	Code  int    // ErrorResponse.ErrCode, return to gRPC/HTTP Client
+	Msg   string // ErrorResponse.ErrMsg,  return to gRPC/HTTP Client
+	error error  // Underlying error, from 3rd API/Library or errors.Wrap/New/WithMessage
 }
 
 func (e *BizError) Error() string {
-	if e.wrapped != nil {
-		return fmt.Sprintf(errWrapFormat, e.Code, e.Msg, e.wrapped)
-	} else {
-		return fmt.Sprintf(errFormat, e.Code, e.Msg)
-	}
+	return fmt.Sprintf("%s", e.Msg)
 }
 
-func (e *BizError) Message() string {
-	return e.Msg
-}
-
-func (e *BizError) Unwrap() error {
-	return e.wrapped
+func (e *BizError) Stack() string {
+	return fmt.Sprintf("%+v", e.error)
 }
 
 func (e *BizError) Is(target error) bool {
@@ -45,24 +39,39 @@ func (e *BizError) Is(target error) bool {
 
 var NewError = Newf
 
+func ParseBizError(err error) BizError {
+	if v, ok := err.(*BizError); ok {
+		return *v
+	}
+	return BizError{
+		Code:  errUnknownCode,
+		Msg:   errUnknownMsg,
+		error: err,
+	}
+}
+
 // New construct BizError with code and msg
 func New(code int, msg string) error {
-	return &BizError{Code: code, Msg: msg}
+	return &BizError{Code: code, Msg: msg, error: gerror.NewCode(gcode.New(code, msg, ""))}
 }
 
 // Newf construct BizError with code, msg and extra message
 func Newf(code int, msg string, format string, args ...interface{}) error {
-	return &BizError{Code: code, Msg: msg, wrapped: errors.Errorf(format, args...)}
+	return &BizError{Code: code, Msg: msg, error: gerror.NewCodef(gcode.New(code, msg, ""), format, args...)}
 }
 
 // Wrap construct BizError with code, msg and underlying error
 func Wrap(code int, msg string, err error) error {
-	return &BizError{Code: code, Msg: msg, wrapped: err}
+	return &BizError{
+		Code:  code,
+		Msg:   msg,
+		error: gerror.WrapCode(gcode.New(code, msg, ""), err),
+	}
 }
 
 // Wrapf construct BizError with code, msg, underlying error and extra message
 func Wrapf(code int, msg string, err error, format string, args ...interface{}) error {
-	return &BizError{Code: code, Msg: msg, wrapped: errors.Wrapf(err, format, args...)}
+	return &BizError{Code: code, Msg: msg, error: gerror.WrapCodef(gcode.New(code, msg, ""), err, format, args...)}
 }
 
 // Register 注册用户自定义错误码对应的错误
@@ -134,7 +143,7 @@ func Customized(code int, msg string) error {
 func errByCode(code int) error {
 	err, ok := codeMap[code]
 	if !ok {
-		return errors.Errorf(errUnknownFormat, code)
+		return errUnknown
 	}
 	return err
 }
